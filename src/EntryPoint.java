@@ -4,13 +4,18 @@ public class EntryPoint implements Runnable{
     private Random random = new Random();
     private int carsPerHour;
     private final Clock clock;
-    public EntryPoint(int carsPerHour, Clock clock){
+    private Road road;
+    public EntryPoint(int carsPerHour, Clock clock, Road road){
         this.carsPerHour = carsPerHour;
         this.clock = clock;
-
+        this.road = road;
     }
     public void run(){
-        
+        try {
+
+        }catch (InterruptedException e) {
+
+        }
     }
     private String getRandomDestination() {
         double rand = random.nextDouble();

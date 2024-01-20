@@ -23,5 +23,5 @@ change the road that has mutex
 
 /*
 * Receives an array of roads and the roads should say where they
-  lead to with variables like front and back
+  lead to and from with variables like front and back
 * */
