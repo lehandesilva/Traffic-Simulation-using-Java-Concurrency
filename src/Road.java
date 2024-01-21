@@ -2,7 +2,6 @@ import java.util.concurrent.Semaphore;
 
 public class Road {
     private Semaphore mutex;
-    //private Semaphore full = new Semaphore(0);
     private final int roadSize;
     private String entryPoint;
     private String destination;
