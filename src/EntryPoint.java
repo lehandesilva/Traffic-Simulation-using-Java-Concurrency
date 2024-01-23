@@ -3,8 +3,10 @@ public class EntryPoint implements Runnable{
     private String[] destinations = {"University","Station","Shopping Centre","Industrial Park"};
     private Random random = new Random();
     private int carsPerHour;
+    private int carsGenerated;
     private final Clock clock;
     private Road road;
+
     public EntryPoint(int carsPerHour, Clock clock, Road road){
         this.carsPerHour = carsPerHour;
         this.clock = clock;
@@ -12,9 +14,15 @@ public class EntryPoint implements Runnable{
     }
     public void run(){
         try {
-
+            while (carsGenerated < carsPerHour) {
+                if (!road.isFull()) {
+                    Vehicle carHolder = generateVehicle();
+                    road.addVehicle(carHolder);
+                    carsGenerated++;
+                }
+            }
         }catch (InterruptedException e) {
-
+            e.printStackTrace();
         }
     }
     private String getRandomDestination() {

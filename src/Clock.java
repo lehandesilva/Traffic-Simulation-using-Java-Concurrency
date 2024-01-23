@@ -6,7 +6,6 @@ public class Clock {
 
     public void tick() {
         currentTime++;
-
         try {
             int tickDuration = 1000;
             Thread.sleep(tickDuration);
@@ -14,7 +13,6 @@ public class Clock {
             Thread.currentThread().interrupt();
         }
     }
-
     public long getCurrentTime() {
         return currentTime;
     }

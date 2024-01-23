@@ -6,11 +6,12 @@ public class Road {
     private String entryPoint;
     private String destination;
     private Vehicle[] cars;
+    private String[] couldBeReachedArray;
     private int frontPointer;
     private int rearPointer;
     private int count;
 
-    public Road(int roadSize, String entry,String destination) {
+    public Road(int roadSize, String entry,String destination, String[] couldBeReachedArray) {
         this.mutex = new Semaphore(1);
         this.roadSize = roadSize;
         this.cars = new Vehicle[roadSize];
@@ -18,6 +19,7 @@ public class Road {
         this.destination = destination;
         this.frontPointer = -1;
         this.rearPointer = -1;
+        this.couldBeReachedArray = couldBeReachedArray;
         this.count = 0;
 
     }
@@ -41,7 +43,7 @@ public class Road {
         }
     }
     //method to add vehicle (produce)
-    public boolean addVehicle(Vehicle car) throws InterruptedException {
+    public void addVehicle(Vehicle car) throws InterruptedException {
         mutex.acquire();
         if (frontPointer == -1) {
             frontPointer = 0;
@@ -50,11 +52,22 @@ public class Road {
         cars[rearPointer] = car;
         count++;
         mutex.release();
-        return true;
         /*
         * Check if there is space available
         * add the car to the array
         * release the mutex*/
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public String getEntryPoint() {
+        return entryPoint;
+    }
+
+    public String[] getCouldBeReachedArray() {
+        return couldBeReachedArray;
     }
 
     //method to remove vehicle (consume)
