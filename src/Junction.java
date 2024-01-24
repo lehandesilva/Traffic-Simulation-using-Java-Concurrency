@@ -1,42 +1,70 @@
 import java.util.Objects;
+import java.util.concurrent.Semaphore;
 
 public class Junction implements Runnable {
     private int greenTime;
     private Road[] entryRoads;
     private Road[] exitRoads;
     private Clock clock;
-    public Junction(Road[] entryRoads,Road[] exitRoads, Clock clock) {
+    private long currentTime;
+    private int currentRoad;
+    private long startTime;
+    //private Semaphore junctionSemaphore;
+    public Junction(int greenTime, Road[] entryRoads, Road[] exitRoads, Clock clock) {
+        this.greenTime = (greenTime / 10);
         this.entryRoads = entryRoads;
         this.exitRoads = exitRoads;
         this.clock = clock;
+        currentRoad = 0;
+        //this.junctionSemaphore = new Semaphore(1);
     }
 
     public void run() {
-        try {
-            while (true) {
-                for (int i = 0; i <=  entryRoads.length; i++) {
-                    if (!entryRoads[i].isEmpty()) {
-                        Vehicle vehicle = entryRoads[i].removeVehicle();
+        while (!Thread.interrupted()) {
+            try {
+                //junctionSemaphore.acquire();
+//                for(int i = 0; i < entryRoads.length; i++) {
+//start here by figuring out the loop
+
+                    if (!entryRoads[currentRoad].isEmpty()) {
+                        Vehicle vehicle = entryRoads[currentRoad].removeVehicle();
                         String vehicleDestination = vehicle.getDestination();
+                        outerLoop:
                         for (int x = 0; x <= exitRoads.length; x++) {
                             String exitRoadDestination = exitRoads[x].getDestination();
-                            if (exitRoadDestination.equals(vehicleDestination) && !exitRoads[x].isFull()) {
-                                exitRoads[x].addVehicle(vehicle);
-                                break;
+                            if (exitRoadDestination.equals(vehicleDestination)) {
+                                if (!exitRoads[x].isFull()) {
+                                    exitRoads[x].addVehicle(vehicle);
+                                    Thread.sleep(100);
+                                    currentTime = clock.getCurrentTime() - startTime;
+                                    if (currentTime >= greenTime) {
+                                        startTime = clock.getCurrentTime();
+                                        currentRoad++;
+                                        if (currentRoad == entryRoads.length - 1) {
+                                            currentRoad = 0;
+                                        }
+                                    }
+                                    break;
+                                }
+
                             }
                             String[] destinationsReachable = exitRoads[x].getCouldBeReachedArray();
                             for (int y = 0; y <= destinationsReachable.length; y++) {
                                 if (destinationsReachable[y].equals(vehicleDestination)) {
-                                    exitRoads[x].addVehicle(vehicle);
-                                    break;
+                                    if (!exitRoads[x].isFull()) {
+                                        exitRoads[x].addVehicle(vehicle);
+                                        Thread.sleep(100);
+                                        break outerLoop;
+                                    }
                                 }
                             }
                         }
                     }
-                }
+                //}
+                //junctionSemaphore.release();
+            } catch (InterruptedException e){
+                Thread.currentThread().interrupt();
             }
-        } catch (InterruptedException e){
-            Thread.currentThread().interrupt();
         }
     }
 }
