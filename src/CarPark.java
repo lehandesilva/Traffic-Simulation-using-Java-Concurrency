@@ -24,13 +24,13 @@ public class CarPark implements Runnable{
                     car.setParkTime(time);
                     carPark[count] = car;
                     count++;
+                    Thread.sleep(1200);
                 }
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
     }
-
 }
 
 /*

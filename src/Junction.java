@@ -44,7 +44,6 @@ public class Junction implements Runnable {
                                     }
                                     break;
                                 }
-
                             }
                             String[] destinationsReachable = exitRoads[x].getCouldBeReachedArray();
                             for (int y = 0; y <= destinationsReachable.length; y++) {

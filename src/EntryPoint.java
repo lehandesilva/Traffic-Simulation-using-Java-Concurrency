@@ -14,7 +14,7 @@ public class EntryPoint implements Runnable{
     }
     public void run(){
         try {
-            while (carsGenerated < carsPerHour) {
+            while (carsGenerated <= carsPerHour) {
                 if (!road.isFull()) {
                     Vehicle carHolder = generateVehicle();
                     road.addVehicle(carHolder);
