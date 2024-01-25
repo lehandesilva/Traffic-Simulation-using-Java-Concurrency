@@ -22,7 +22,7 @@ public class EntryPoint implements Runnable{
                 }
             }
         }catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
     private String getRandomDestination() {

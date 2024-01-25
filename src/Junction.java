@@ -24,8 +24,6 @@ public class Junction implements Runnable {
             try {
                 //junctionSemaphore.acquire();
 //                for(int i = 0; i < entryRoads.length; i++) {
-//start here by figuring out the loop
-
                     if (!entryRoads[currentRoad].isEmpty()) {
                         Vehicle vehicle = entryRoads[currentRoad].removeVehicle();
                         String vehicleDestination = vehicle.getDestination();
@@ -54,6 +52,14 @@ public class Junction implements Runnable {
                                     if (!exitRoads[x].isFull()) {
                                         exitRoads[x].addVehicle(vehicle);
                                         Thread.sleep(100);
+                                        currentTime = clock.getCurrentTime() - startTime;
+                                        if (currentTime >= greenTime) {
+                                            startTime = clock.getCurrentTime();
+                                            currentRoad++;
+                                            if (currentRoad == entryRoads.length - 1) {
+                                                currentRoad = 0;
+                                            }
+                                        }
                                         break outerLoop;
                                     }
                                 }

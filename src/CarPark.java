@@ -1,4 +1,36 @@
-public class CarPark {
+public class CarPark implements Runnable{
+    private String destination;
+    private Clock clock;
+    private int capacity;
+    private Vehicle[] carPark; //Array that holds the vehicles once parked
+    private int count;
+    private Road connectedRoad;
+
+    public CarPark(String destination, Clock clock, int capacity, boolean full, Road connectedRoad) {
+        this.destination = destination;
+        this.clock = clock;
+        this.capacity = capacity;
+        this.carPark = new Vehicle[capacity];
+        this.count = 0;
+        this.connectedRoad = connectedRoad;
+    }
+
+    public void run() {
+        try {
+            while (count <= capacity) {
+                if (!connectedRoad.isEmpty()) {
+                    Vehicle car = connectedRoad.removeVehicle();
+                    long time = clock.getCurrentTime();
+                    car.setParkTime(time);
+                    carPark[count] = car;
+                    count++;
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
 }
 
 /*
