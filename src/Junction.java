@@ -22,13 +22,12 @@ public class Junction implements Runnable {
     public void run() {
         while (!Thread.interrupted()) {
             try {
-                //junctionSemaphore.acquire();
-//                for(int i = 0; i < entryRoads.length; i++) {
+                //while (currentTime <= greenTime) {
                     if (!entryRoads[currentRoad].isEmpty()) {
                         Vehicle vehicle = entryRoads[currentRoad].removeVehicle();
                         String vehicleDestination = vehicle.getDestination();
                         outerLoop:
-                        for (int x = 0; x <= exitRoads.length; x++) {
+                        for (int x = 0; x < exitRoads.length; x++) {
                             String exitRoadDestination = exitRoads[x].getDestination();
                             if (exitRoadDestination.equals(vehicleDestination)) {
                                 if (!exitRoads[x].isFull()) {
@@ -46,7 +45,7 @@ public class Junction implements Runnable {
                                 }
                             }
                             String[] destinationsReachable = exitRoads[x].getCouldBeReachedArray();
-                            for (int y = 0; y <= destinationsReachable.length; y++) {
+                            for (int y = 0; y < destinationsReachable.length; y++) {
                                 if (destinationsReachable[y].equals(vehicleDestination)) {
                                     if (!exitRoads[x].isFull()) {
                                         exitRoads[x].addVehicle(vehicle);
@@ -66,7 +65,6 @@ public class Junction implements Runnable {
                         }
                     }
                 //}
-                //junctionSemaphore.release();
             } catch (InterruptedException e){
                 Thread.currentThread().interrupt();
             }

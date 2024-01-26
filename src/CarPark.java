@@ -1,13 +1,12 @@
 public class CarPark implements Runnable{
-    private String destination;
+
     private Clock clock;
     private int capacity;
     private Vehicle[] carPark; //Array that holds the vehicles once parked
     private int count;
     private Road connectedRoad;
 
-    public CarPark(String destination, Clock clock, int capacity, boolean full, Road connectedRoad) {
-        this.destination = destination;
+    public CarPark(Clock clock, int capacity, Road connectedRoad) {
         this.clock = clock;
         this.capacity = capacity;
         this.carPark = new Vehicle[capacity];
