@@ -5,7 +5,7 @@ public class EntryPoint implements Runnable{
     private int carsPerHour;
     private int carsGenerated;
     private final Clock clock;
-    private Road road;
+    private final Road road;
 
     public EntryPoint(int carsPerHour, Clock clock, Road road){
         this.carsPerHour = carsPerHour;
@@ -16,9 +16,11 @@ public class EntryPoint implements Runnable{
         try {
             while (carsGenerated <= carsPerHour) {
                 if (!road.isFull()) {
-                    Vehicle carHolder = generateVehicle();
-                    road.addVehicle(carHolder);
-                    carsGenerated++;
+                    synchronized (road) {
+                        Vehicle carHolder = generateVehicle();
+                        road.addVehicle(carHolder);
+                        carsGenerated++;
+                    }
                 }
             }
         }catch (InterruptedException e) {

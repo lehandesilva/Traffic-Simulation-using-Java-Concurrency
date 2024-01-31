@@ -9,24 +9,26 @@ public class Junction implements Runnable {
     private long currentTime;
     private int currentRoad;
     private long startTime;
-    //private Semaphore junctionSemaphore;
+    private Semaphore junctionSemaphore;
     public Junction(int greenTime, Road[] entryRoads, Road[] exitRoads, Clock clock) {
         this.greenTime = (greenTime / 10);
         this.entryRoads = entryRoads;
         this.exitRoads = exitRoads;
         this.clock = clock;
         currentRoad = 0;
-        //this.junctionSemaphore = new Semaphore(1);
+        this.junctionSemaphore = new Semaphore(1);
     }
 
     public void run() {
             try {
+                junctionSemaphore.acquire();
                 while (currentTime <= greenTime) {
                     if (currentRoad >= entryRoads.length){
                         currentRoad = 0;
                     }
                     if (!entryRoads[currentRoad].isEmpty()) {
                         Vehicle vehicle = entryRoads[currentRoad].removeVehicle();
+                        System.out.println("car entered junction"+ Thread.currentThread().getName());
                         String vehicleDestination = vehicle.getDestination();
                         outerLoop:
                         for (Road exitRoad : exitRoads) {
@@ -34,12 +36,16 @@ public class Junction implements Runnable {
                             if (exitRoadDestination.equals(vehicleDestination)) {
                                 if (!exitRoad.isFull()) {
                                     exitRoad.addVehicle(vehicle);
+                                    System.out.println("car exited junction"+ Thread.currentThread().getName());
                                     Thread.sleep(100);
+                                    System.out.println("junction awake"+ Thread.currentThread().getName());
                                     currentTime = clock.getCurrentTime() - startTime;
                                     if (currentTime >= greenTime) {
                                         startTime = clock.getCurrentTime();
                                         currentRoad++;
+                                        System.out.println("Switched road"+ Thread.currentThread().getName());
                                     }
+                                    junctionSemaphore.release();
                                     break;
                                 }
                             }
@@ -54,6 +60,7 @@ public class Junction implements Runnable {
                                             startTime = clock.getCurrentTime();
                                             currentRoad++;
                                         }
+                                        junctionSemaphore.release();
                                         break outerLoop;
                                     }
                                 }
@@ -64,6 +71,10 @@ public class Junction implements Runnable {
             } catch (InterruptedException e){
                 Thread.currentThread().interrupt();
             }
+            finally {
+                junctionSemaphore.release();
+            }
+
         }
     }
 
