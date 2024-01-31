@@ -22,7 +22,7 @@ public class Junction implements Runnable {
     public void run() {
             try {
                 junctionSemaphore.acquire();
-                while (currentTime <= greenTime) {
+                while (true) {
                     if (currentRoad >= entryRoads.length){
                         currentRoad = 0;
                     }
@@ -59,6 +59,7 @@ public class Junction implements Runnable {
                                         if (currentTime >= greenTime) {
                                             startTime = clock.getCurrentTime();
                                             currentRoad++;
+                                            System.out.println("Switched road"+ Thread.currentThread().getName());
                                         }
                                         junctionSemaphore.release();
                                         break outerLoop;
