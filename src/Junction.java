@@ -20,43 +20,39 @@ public class Junction implements Runnable {
     }
 
     public void run() {
-        while (!Thread.interrupted()) {
             try {
-                //while (currentTime <= greenTime) {
+                while (currentTime <= greenTime) {
+                    if (currentRoad >= entryRoads.length){
+                        currentRoad = 0;
+                    }
                     if (!entryRoads[currentRoad].isEmpty()) {
                         Vehicle vehicle = entryRoads[currentRoad].removeVehicle();
                         String vehicleDestination = vehicle.getDestination();
                         outerLoop:
-                        for (int x = 0; x < exitRoads.length; x++) {
-                            String exitRoadDestination = exitRoads[x].getDestination();
+                        for (Road exitRoad : exitRoads) {
+                            String exitRoadDestination = exitRoad.getDestination();
                             if (exitRoadDestination.equals(vehicleDestination)) {
-                                if (!exitRoads[x].isFull()) {
-                                    exitRoads[x].addVehicle(vehicle);
+                                if (!exitRoad.isFull()) {
+                                    exitRoad.addVehicle(vehicle);
                                     Thread.sleep(100);
                                     currentTime = clock.getCurrentTime() - startTime;
                                     if (currentTime >= greenTime) {
                                         startTime = clock.getCurrentTime();
                                         currentRoad++;
-                                        if (currentRoad == entryRoads.length - 1) {
-                                            currentRoad = 0;
-                                        }
                                     }
                                     break;
                                 }
                             }
-                            String[] destinationsReachable = exitRoads[x].getCouldBeReachedArray();
-                            for (int y = 0; y < destinationsReachable.length; y++) {
-                                if (destinationsReachable[y].equals(vehicleDestination)) {
-                                    if (!exitRoads[x].isFull()) {
-                                        exitRoads[x].addVehicle(vehicle);
+                            String[] destinationsReachable = exitRoad.getCouldBeReachedArray();
+                            for (String s : destinationsReachable) {
+                                if (s.equals(vehicleDestination)) {
+                                    if (!exitRoad.isFull()) {
+                                        exitRoad.addVehicle(vehicle);
                                         Thread.sleep(100);
                                         currentTime = clock.getCurrentTime() - startTime;
                                         if (currentTime >= greenTime) {
                                             startTime = clock.getCurrentTime();
                                             currentRoad++;
-                                            if (currentRoad == entryRoads.length - 1) {
-                                                currentRoad = 0;
-                                            }
                                         }
                                         break outerLoop;
                                     }
@@ -64,13 +60,12 @@ public class Junction implements Runnable {
                             }
                         }
                     }
-                //}
+                }
             } catch (InterruptedException e){
                 Thread.currentThread().interrupt();
             }
         }
     }
-}
 
 /*
 * Check the cars destination and check if there's a road with

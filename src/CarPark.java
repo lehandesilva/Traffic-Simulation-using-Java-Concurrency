@@ -30,7 +30,12 @@ public class CarPark implements Runnable{
             Thread.currentThread().interrupt();
         }
     }
+
+    public int getCount() {
+        return count;
+    }
 }
+
 
 /*
 * Should run as a thread

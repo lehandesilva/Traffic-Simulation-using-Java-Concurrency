@@ -7,10 +7,11 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
         String filePath = "./Scenario1.txt";
-        String SHOPPINGCENTER = "Shopping Centre";
+        String SHOPPINGCENTRE = "Shopping Centre";
         String INDUSTRIALPARK = "Industrial Park";
         String STATION = "Station";
         String UNIVERSITY = "University";
+        long time;
 
         Map<String, Integer> entryPoints = readConfigFile( filePath,"ENTRYPOINTS");
         Map<String, Integer> junctions = readConfigFile(filePath, "JUNCTIONS");
@@ -19,15 +20,15 @@ public class Main {
 
         Clock clock = new Clock();
         //The naming conventions for each road is its entry point followed by its destination
-        Road southA = new Road(60,"south", "A", new String[]{SHOPPINGCENTER,INDUSTRIALPARK,STATION,UNIVERSITY});
-        Road eastB = new Road(30, "East", "B", new String[]{SHOPPINGCENTER,INDUSTRIALPARK,STATION,UNIVERSITY});
-        Road northC = new Road(50, "North", "C", new String[]{SHOPPINGCENTER,INDUSTRIALPARK,STATION,UNIVERSITY});
-        Road AB = new Road(7,"A", "B", new String[]{SHOPPINGCENTER,STATION,UNIVERSITY});
+        Road southA = new Road(60,"south", "A", new String[]{SHOPPINGCENTRE,INDUSTRIALPARK,STATION,UNIVERSITY});
+        Road eastB = new Road(30, "East", "B", new String[]{SHOPPINGCENTRE,INDUSTRIALPARK,STATION,UNIVERSITY});
+        Road northC = new Road(50, "North", "C", new String[]{SHOPPINGCENTRE,INDUSTRIALPARK,STATION,UNIVERSITY});
+        Road AB = new Road(7,"A", "B", new String[]{SHOPPINGCENTRE,STATION,UNIVERSITY});
         Road AIndustrialPark = new Road(15,"A",INDUSTRIALPARK,new String[]{INDUSTRIALPARK});
         Road BA = new Road(7,"B","A",new String[]{INDUSTRIALPARK});
-        Road BC = new Road(10,"B","C",new String[]{SHOPPINGCENTER,STATION,UNIVERSITY});
+        Road BC = new Road(10,"B","C",new String[]{SHOPPINGCENTRE,STATION,UNIVERSITY});
         Road CB = new Road(10,"C","B", new String[]{INDUSTRIALPARK});
-        Road CShoppingCentre = new Road(7,"C",SHOPPINGCENTER,new String[]{SHOPPINGCENTER});
+        Road CShoppingCentre = new Road(7,"C",SHOPPINGCENTRE,new String[]{SHOPPINGCENTRE});
         Road CD = new Road(10,"C", "D",new String[]{STATION, UNIVERSITY});
         Road DUniversity = new Road(15,"D",UNIVERSITY, new String[]{UNIVERSITY});
         Road DStation = new Road(15,"D", STATION, new String[]{STATION});
@@ -72,6 +73,10 @@ public class Main {
 
         for (int i = 0; i <= 360; i++) {
             clock.tick();
+            time = clock.getCurrentTime();
+            if (time % 60 == 0){
+                System.out.println("Time: " + time/6 + "m :    University : " + university.getCount() + "\nStation: " + station.getCount() +"\nShopping Center: " + shoppingCentre.getCount() + "\nIndustrial Park: " + industrialPark.getCount());
+            }
         }
         try {
             industrialParkThread.join();
