@@ -5,6 +5,7 @@ public class CarPark implements Runnable{
     private Vehicle[] carPark; //Array that holds the vehicles once parked
     private int count;
     private Road connectedRoad;
+    private Vehicle car;
 
     public CarPark(Clock clock, int capacity, Road connectedRoad) {
         this.clock = clock;
@@ -17,14 +18,13 @@ public class CarPark implements Runnable{
     public void run() {
         try {
             while (count <= capacity) {
-                if (!connectedRoad.isEmpty()) {
-                    Vehicle car = connectedRoad.removeVehicle();
+                    car = connectedRoad.removeVehicle();
                     long time = clock.getCurrentTime();
                     car.setParkTime(time);
                     carPark[count] = car;
                     count++;
-                    Thread.sleep(1200);
-                }
+                    Thread.sleep(10);
+
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
