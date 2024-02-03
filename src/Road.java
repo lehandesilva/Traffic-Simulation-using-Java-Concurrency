@@ -10,8 +10,7 @@ public class Road {
     private int frontPointer;
     private int rearPointer;
     private int count;
-    private final Semaphore emptySlots;
-    private final Semaphore occupiedSlots;
+    private Vehicle removedCar;
     public Road(int roadSize, String entry,String destination, String[] couldBeReachedArray) {
         this.mutex = new Semaphore(1);
         this.roadSize = roadSize;
@@ -21,8 +20,6 @@ public class Road {
         this.frontPointer = -1;
         this.rearPointer = -1;
         this.couldBeReachedArray = couldBeReachedArray;
-        this.emptySlots = new Semaphore(roadSize);
-        this.occupiedSlots = new Semaphore(0);
         this.count = 0;
     }
     //method to check if space avail
@@ -45,51 +42,38 @@ public class Road {
         }
     }
     public void acquireMutex() throws InterruptedException {
-        System.out.println("Trying to acquire mutex " + Thread.currentThread().getName() + " count: " + count);
         mutex.acquire();
-        System.out.println("Thread " + Thread.currentThread().getName()+ "acquired mutex");
     }
     public void releaseMutex() throws InterruptedException {
-        System.out.println("Trying to release mutex " + Thread.currentThread().getName() + " count: " + count);
         mutex.release();
-        System.out.println("Thread " + Thread.currentThread().getName()+ "released mutex");
     }
     //method to add vehicle (produce)
     public void addVehicle(Vehicle car) throws InterruptedException {
-        System.out.println("Trying to acquire empty " + Thread.currentThread().getName() + " count: " + count);
-        emptySlots.acquire();
-        System.out.println("Thread " + Thread.currentThread().getName()+ "acquired empty");
         if (frontPointer == -1) {
             frontPointer = 0;
         }
         rearPointer = (rearPointer + 1) % roadSize;
         cars[rearPointer] = car;
         count++;
-        mutex.release();
-        System.out.println("Trying to release occupied  " + Thread.currentThread().getName() + " count: " + count);
-        occupiedSlots.release();
-        System.out.println("Thread " + Thread.currentThread().getName()+ "released empty");
         /*
         * Check if there is space available
         * add the car to the array
         * release the mutex*/
     }
     public Vehicle removeVehicle() throws InterruptedException{
-        System.out.println("Trying to acquire occupied " + Thread.currentThread().getName() + " count: " + count);
-        occupiedSlots.acquire();
-        System.out.println("Thread " + Thread.currentThread().getName()+ "acquired occupied");
-        Vehicle removedCar;
-        removedCar = cars[frontPointer];
-        count--;
-        if (frontPointer == rearPointer) {
-            frontPointer = -1;
-            rearPointer = -1;
-        } else {
-            frontPointer = (frontPointer + 1) % roadSize;
+        if (frontPointer != -1) {
+            removedCar = cars[frontPointer];
+            count--;
+            if (frontPointer == rearPointer) {
+                frontPointer = -1;
+                rearPointer = -1;
+            } else {
+                frontPointer = (frontPointer + 1) % roadSize;
+            }
         }
-        System.out.println("Trying to release empty" + Thread.currentThread().getName() + " count: " + count);
-        emptySlots.release();
-        System.out.println("Thread " + Thread.currentThread().getName()+ "released empty");
+        else {
+            removedCar = null;
+        }
         return removedCar;
     }
 

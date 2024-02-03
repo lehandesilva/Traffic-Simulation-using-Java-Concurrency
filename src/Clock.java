@@ -1,5 +1,6 @@
 public class Clock {
     private long currentTime;
+    private int tickDuration = 1000;
     public Clock() {
         this.currentTime = 0;
     }
@@ -7,7 +8,6 @@ public class Clock {
     public void tick() {
         currentTime++;
         try {
-            int tickDuration = 1000;
             Thread.sleep(tickDuration);
         } catch (InterruptedException e){
             Thread.currentThread().interrupt();
