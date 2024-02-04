@@ -41,51 +41,51 @@ public class Road {
             return false;
         }
     }
+
     public void acquireMutex() throws InterruptedException {
         mutex.acquire();
     }
-    public void releaseMutex() throws InterruptedException {
+
+    public void releaseMutex() {
         mutex.release();
     }
+
     //method to add vehicle (produce)
     public void addVehicle(Vehicle car) throws InterruptedException {
         mutex.acquire();
-        try {
-            if (frontPointer == -1) {
-                frontPointer = 0;
-            }
-            rearPointer = (rearPointer + 1) % roadSize;
-            cars[rearPointer] = car;
-            count++;
-        } finally {
-          mutex.release();
+        if (frontPointer == -1) {
+            frontPointer = 0;
         }
-        /*
-        * Check if there is space available
-        * add the car to the array
-        * release the mutex*/
+        rearPointer = (rearPointer + 1) % roadSize;
+        cars[rearPointer] = car;
+        count++;
+        mutex.release();
     }
     public Vehicle removeVehicle() throws InterruptedException{
         mutex.acquire();
         Vehicle removedCar;
-        try{
-            if (frontPointer != -1) {
-                removedCar = cars[frontPointer];
-                count--;
-                if (frontPointer == rearPointer) {
-                    frontPointer = -1;
-                    rearPointer = -1;
-                } else {
-                    frontPointer = (frontPointer + 1) % roadSize;
-                }
+        if (frontPointer != -1) {
+            removedCar = cars[frontPointer];
+            count--;
+            if (frontPointer == rearPointer) {
+                frontPointer = -1;
+                rearPointer = -1;
+            } else {
+                frontPointer = (frontPointer + 1) % roadSize;
             }
-            else {
-                removedCar = null;
-            }
-        }finally{
-            mutex.release();
         }
+        else {
+            removedCar = null;
+        }
+        mutex.release();
         return removedCar;
+    }
+
+    public String carDestination(Vehicle car) {
+        if (!isEmpty()) {
+            return car.getDestination();
+        }
+        return null;
     }
 
     public String getDestination() {

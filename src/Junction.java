@@ -53,21 +53,25 @@ public class Junction implements Runnable {
                             while (exitRoad.isFull()) {
                                 if (!exitRoad.isFull()) {
                                     exitRoad.addVehicle(vehicle);
-                              //      System.out.println("Car removed at junction " + exitRoad.getEntryPoint());
+                                    //      System.out.println("Car removed at junction " + exitRoad.getEntryPoint());
                                     Thread.sleep(100);
                                 }
                             }
                         }
-                    }
-                    else {
+                    } else {
                         System.out.println("Null Road at " + entryRoads[0].getEntryPoint());
                     }
                 }
-            }
-            long currentTime = clock.getCurrentTime() - startTime;
-            if (currentTime >= greenTime) {
-                currentRoad++;
-                startTime = clock.getCurrentTime();
+                if (entryRoads[currentRoad].isFull()) {
+                    System.out.println("Cock at " + entryRoads[currentRoad].getDestination());
+                }
+
+                long currentTime = clock.getCurrentTime() - startTime;
+                if (currentTime >= greenTime) {
+                    currentRoad++;
+                    startTime = clock.getCurrentTime();
+                    System.out.println("Changed Lane");
+                }
             }
         }
         catch (InterruptedException e) {

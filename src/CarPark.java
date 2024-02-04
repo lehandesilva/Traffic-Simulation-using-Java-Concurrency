@@ -24,13 +24,10 @@ public class CarPark implements Runnable{
                     long time = clock.getCurrentTime();
                     car.setParkTime(time);
                     parkMutex.acquire();
-                    try {
-                        carPark[count] = car;
-                        count++;
-                        System.out.println("car added at " + connectedRoad.getDestination());
-                    } finally {
-                        parkMutex.release();
-                    }
+                    carPark[count] = car;
+                    count++;
+                    System.out.println("car added at " + connectedRoad.getDestination());
+                    parkMutex.release();
                     Thread.sleep(1200);
                 }
             }
