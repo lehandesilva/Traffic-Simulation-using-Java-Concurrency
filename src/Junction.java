@@ -9,7 +9,6 @@ public class Junction implements Runnable {
     private final Clock clock;
     private int currentRoad;
     private long startTime;
-    private String[] destinationsReachable;
 
     public Junction(int greenTime, Road[] entryRoads, Road[] exitRoads, Clock clock) {
         this.greenTime = (greenTime / 10);
@@ -90,6 +89,7 @@ public class Junction implements Runnable {
                 }
             }
         }
+        System.out.println("Returning null");
         return null;
     }
 }
