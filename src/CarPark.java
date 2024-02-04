@@ -1,35 +1,40 @@
+import java.util.concurrent.Semaphore;
+
 public class CarPark implements Runnable{
 
-    private Clock clock;
-    private int capacity;
-    private Vehicle[] carPark; //Array that holds the vehicles once parked
+    private final Clock clock;
+    private final Vehicle[] carPark; //Array that holds the vehicles once parked
     private int count;
-    private Road connectedRoad;
-    private Vehicle car;
-    private long time;
-
+    private final Road connectedRoad;
+    private final Semaphore parkMutex;
     public CarPark(Clock clock, int capacity, Road connectedRoad) {
         this.clock = clock;
-        this.capacity = capacity;
         this.carPark = new Vehicle[capacity];
         this.count = 0;
         this.connectedRoad = connectedRoad;
+        this.parkMutex = new Semaphore(1);
     }
 
     public void run() {
         try {
             while (clock.getCurrentTime() < 360){
                 while (!connectedRoad.isEmpty()) {
-                    connectedRoad.acquireMutex();
-                    car = connectedRoad.removeVehicle();
-                    connectedRoad.releaseMutex();
-                    time = clock.getCurrentTime();
+                    Vehicle car = connectedRoad.removeVehicle();
+                    System.out.println("car removed at " + connectedRoad.getDestination());
+                    long time = clock.getCurrentTime();
                     car.setParkTime(time);
-                    carPark[count] = car;
-                    count++;
-                    Thread.sleep(120);
+                    parkMutex.acquire();
+                    try {
+                        carPark[count] = car;
+                        count++;
+                        System.out.println("car added at " + connectedRoad.getDestination());
+                    } finally {
+                        parkMutex.release();
+                    }
+                    Thread.sleep(1200);
                 }
             }
+            System.out.println("Count: " + count);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

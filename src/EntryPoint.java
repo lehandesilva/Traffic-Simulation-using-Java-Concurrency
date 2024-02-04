@@ -15,14 +15,14 @@ public class EntryPoint implements Runnable{
     }
     public void run(){
         try {
-            while (carsGenerated <= carsPerHour) {
-                if (!road.isFull()) {
-                    synchronized (road) {
-                        carHolder = generateVehicle();
-                        road.acquireMutex();
-                        road.addVehicle(carHolder);
-                        road.releaseMutex();
-                        carsGenerated++;
+            while(clock.getCurrentTime() <= 360) {
+                while (carsGenerated <= carsPerHour) {
+                    if (!road.isFull()) {
+                        synchronized (road) {
+                            carHolder = generateVehicle();
+                            road.addVehicle(carHolder);
+                            carsGenerated++;
+                        }
                     }
                 }
             }
