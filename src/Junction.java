@@ -9,7 +9,6 @@ public class Junction implements Runnable {
     private final Clock clock;
     private int currentRoad;
     private long startTime;
-
     public Junction(int greenTime, Road[] entryRoads, Road[] exitRoads, Clock clock) {
         this.greenTime = (greenTime / 10);
         this.entryRoads = entryRoads;
@@ -17,7 +16,6 @@ public class Junction implements Runnable {
         this.clock = clock;
         currentRoad = 0;
         startTime = clock.getCurrentTime();
-
     }
     /*First approach -
      * Gets destination of current entry road
@@ -32,7 +30,6 @@ public class Junction implements Runnable {
      * hold the car in a loop until there's space in the exit road
      * Once there's a spot grab mutex and add car to the road
      * Release mutex */
-
     public void run() {
         try {
             while (clock.getCurrentTime() < 360) {
@@ -78,7 +75,6 @@ public class Junction implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public Road findExitRoad(String vehicleDestination) {
         for (int i = 0; i < exitRoads.length; i++) {
             String exitRoadDestination = exitRoads[i].getDestination();
