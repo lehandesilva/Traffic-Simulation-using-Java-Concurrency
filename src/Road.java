@@ -1,7 +1,9 @@
 import java.util.concurrent.Semaphore;
 
 public class Road {
-    private final Semaphore mutex;
+    private Semaphore mutex;
+    private Semaphore spaces;
+    private Semaphore items;
     private final int roadSize;
     private final String entryPoint;
     private final String destination;
@@ -13,6 +15,8 @@ public class Road {
 
     public Road(int roadSize, String entry,String destination, String[] couldBeReachedArray) {
         this.mutex = new Semaphore(1);
+        this.spaces = new Semaphore(roadSize);
+        this.items = new Semaphore(0);
         this.roadSize = roadSize;
         this.cars = new Vehicle[roadSize];
         this.entryPoint = entry;
@@ -50,36 +54,43 @@ public class Road {
 //        mutex.release();
 //    }
 
+    public void addVehicle(Vehicle car) {
+        try {
+            spaces.acquire();
+            mutex.acquire();
+        } catch (InterruptedException e) {
+        }
+    }
     //method to add vehicle (produce)
-    public void addVehicle(Vehicle car) throws InterruptedException {
-        mutex.acquire();
-        if (frontPointer == -1) {
-            frontPointer = 0;
-        }
-        rearPointer = (rearPointer + 1) % roadSize;
-        cars[rearPointer] = car;
-        count++;
-        mutex.release();
-    }
-    public Vehicle removeVehicle() throws InterruptedException{
-        mutex.acquire();
-        Vehicle removedCar;
-        if (frontPointer != -1) {
-            removedCar = cars[frontPointer];
-            count--;
-            if (frontPointer == rearPointer) {
-                frontPointer = -1;
-                rearPointer = -1;
-            } else {
-                frontPointer = (frontPointer + 1) % roadSize;
-            }
-        }
-        else {
-            removedCar = null;
-        }
-        mutex.release();
-        return removedCar;
-    }
+//    public void addVehicle(Vehicle car) throws InterruptedException {
+//        mutex.acquire();
+//        if (frontPointer == -1) {
+//            frontPointer = 0;
+//        }
+//        rearPointer = (rearPointer + 1) % roadSize;
+//        cars[rearPointer] = car;
+//        count++;
+//        mutex.release();
+//    }
+//    public Vehicle removeVehicle() throws InterruptedException{
+//        mutex.acquire();
+//        Vehicle removedCar;
+//        if (frontPointer != -1) {
+//            removedCar = cars[frontPointer];
+//            count--;
+//            if (frontPointer == rearPointer) {
+//                frontPointer = -1;
+//                rearPointer = -1;
+//            } else {
+//                frontPointer = (frontPointer + 1) % roadSize;
+//            }
+//        }
+//        else {
+//            removedCar = null;
+//        }
+//        mutex.release();
+//        return removedCar;
+//    }
     public String carDestination() {
         return cars[frontPointer].getDestination();
     }
