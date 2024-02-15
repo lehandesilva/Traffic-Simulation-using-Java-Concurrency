@@ -1,12 +1,11 @@
 import java.util.Random;
 public class EntryPoint implements Runnable{
-    private String[] destinations = {"University","Station","Shopping Centre","Industrial Park"};
+    private final String[] destinations = {"University","Station","Shopping Centre","Industrial Park"};
     private Random random = new Random();
-    private int carsPerHour;
+    private final int carsPerHour;
     private int carsGenerated;
     private final Clock clock;
     private final Road road;
-    private Vehicle carHolder;
 
     public EntryPoint(int carsPerHour, Clock clock, Road road){
         this.carsPerHour = carsPerHour;
@@ -18,11 +17,13 @@ public class EntryPoint implements Runnable{
             while(clock.getCurrentTime() <= 360) {
                 while (carsGenerated <= carsPerHour) {
                     if (!road.isFull()) {
-                        synchronized (road) {
-                            carHolder = generateVehicle();
-                            road.addVehicle(carHolder);
-                            carsGenerated++;
-                        }
+                        road.acquireMutex();
+                        Vehicle carHolder = generateVehicle();
+                        road.addVehicle(carHolder);
+//                        System.out.println("car generated with dest:"+ carHolder.getDestination());
+                        carsGenerated++;
+                        road.releaseMutex();
+                        Thread.sleep(100);
                     }
                 }
             }

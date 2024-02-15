@@ -1,7 +1,6 @@
 import java.util.concurrent.Semaphore;
 
 public class CarPark implements Runnable{
-
     private final Clock clock;
     private final Vehicle[] carPark; //Array that holds the vehicles once parked
     private int count;
@@ -19,16 +18,21 @@ public class CarPark implements Runnable{
         try {
             while (clock.getCurrentTime() < 360){
                 while (!connectedRoad.isEmpty()) {
-                    Vehicle car = connectedRoad.removeVehicle();
-                    System.out.println("car removed at " + connectedRoad.getDestination());
-                    long time = clock.getCurrentTime();
-                    car.setParkTime(time);
-                    parkMutex.acquire();
-                    carPark[count] = car;
-                    count++;
-                    System.out.println("car added at " + connectedRoad.getDestination());
-                    parkMutex.release();
-                    Thread.sleep(1200);
+                    try {
+                        connectedRoad.acquireMutex();
+                        Vehicle car = connectedRoad.removeVehicle();
+                        System.out.println("car removed from :" + connectedRoad.getDestination());
+                        long time = clock.getCurrentTime();
+                        car.setParkTime(time);
+                        parkMutex.acquire();
+                        carPark[count] = car;
+                        count++;
+                        System.out.println("car Parked at " + connectedRoad.getDestination());
+                        Thread.sleep(1200);
+                    } finally {
+                        connectedRoad.releaseMutex();
+                        parkMutex.release();
+                    }
                 }
             }
             System.out.println("Count: " + count);
@@ -36,7 +40,6 @@ public class CarPark implements Runnable{
             Thread.currentThread().interrupt();
         }
     }
-
     public int getCount() {
         return count;
     }

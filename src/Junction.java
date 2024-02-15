@@ -2,7 +2,7 @@ import javax.print.attribute.standard.Destination;
 import java.util.Objects;
 import java.util.concurrent.Semaphore;
 
-public class Junction implements Runnable {
+public class Junction implements Runnable{
     private final int greenTime;
     private final Road[] entryRoads;
     private final Road[] exitRoads;
@@ -17,6 +17,12 @@ public class Junction implements Runnable {
         currentRoad = 0;
         startTime = clock.getCurrentTime();
     }
+    /*
+    * Loop for 360 seconds
+    * get the entry road that's attached and check cars destination, get destination to it,
+    * loop until there's a spot
+    * grab mutex of both entry and exit, add and remove then release both */
+
     /*First approach -
      * Gets destination of current entry road
      * Attempt to grab mutex of both roads
@@ -36,38 +42,28 @@ public class Junction implements Runnable {
                 if (currentRoad >= entryRoads.length) {
                     currentRoad = 0;
                 }
-                Vehicle vehicle = entryRoads[currentRoad].removeVehicle();
-                if (vehicle != null) {
-                    //System.out.println("Vehicle added at junction " + entryRoads[currentRoad].getDestination());
-                    String vehicleDestination = vehicle.getDestination();
+                if (!entryRoads[currentRoad].isEmpty()) {
+                    String vehicleDestination = entryRoads[currentRoad].carDestination();
                     Road exitRoad = findExitRoad(vehicleDestination);
-                    if (exitRoad != null) {
-                        if (!exitRoad.isFull()) {
+                    if (exitRoad != null && !exitRoad.isFull()) {
+                        try {
+                            entryRoads[currentRoad].acquireMutex();
+                            exitRoad.acquireMutex();
+                            Vehicle vehicle = entryRoads[currentRoad].removeVehicle();
                             exitRoad.addVehicle(vehicle);
-                            //System.out.println("Car removed at junction " + exitRoad.getEntryPoint());
+                            System.out.println("car crossed junction at : " + exitRoad.getEntryPoint());
                             Thread.sleep(100);
-                        } else {
-                            while (exitRoad.isFull()) {
-                                if (!exitRoad.isFull()) {
-                                    exitRoad.addVehicle(vehicle);
-                                    //      System.out.println("Car removed at junction " + exitRoad.getEntryPoint());
-                                    Thread.sleep(100);
-                                }
-                            }
+                        } finally {
+                            exitRoad.releaseMutex();
+                            entryRoads[currentRoad].releaseMutex();
                         }
-                    } else {
-                        System.out.println("Null Road at " + entryRoads[0].getEntryPoint());
                     }
                 }
-                if (entryRoads[currentRoad].isFull()) {
-                    System.out.println("Cock at " + entryRoads[currentRoad].getDestination());
-                }
-
                 long currentTime = clock.getCurrentTime() - startTime;
                 if (currentTime >= greenTime) {
                     currentRoad++;
                     startTime = clock.getCurrentTime();
-                    System.out.println("Changed Lane");
+                    System.out.println("Changed light");
                 }
             }
         }
@@ -89,7 +85,7 @@ public class Junction implements Runnable {
                 }
             }
         }
-        System.out.println("Returning null");
+        System.out.println("Error: Couldn't find exit road");
         return null;
     }
 }

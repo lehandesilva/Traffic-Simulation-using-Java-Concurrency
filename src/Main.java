@@ -47,6 +47,8 @@ public class Main {
         Junction Cjunc = new Junction(junctions.get("C"), new Road[]{BC,northC},new Road[]{CShoppingCentre,CD,CB},clock);
         Junction Djunc = new Junction(junctions.get("D"), new Road[]{CD},new Road[]{DStation,DUniversity},clock);
 
+
+
         Thread southThread = new Thread(south);
         Thread eastThread = new Thread(east);
         Thread northThread = new Thread(north);
@@ -78,21 +80,6 @@ public class Main {
                 System.out.println("Time: " + time/6 + "m :    University : " + university.getCount() + "\nStation: " + station.getCount() +"\nShopping Center: " + shoppingCentre.getCount() + "\nIndustrial Park: " + industrialPark.getCount());
             }
         }
-        try {
-            industrialParkThread.join();
-            shoppingCentreThread.join();
-            stationThread.join();
-            universityThread.join();
-            juncAThread.join();
-            juncBThread.join();
-            juncCThread.join();
-            juncDThread.join();
-            southThread.join();
-            eastThread.join();
-            northThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
     }
 
@@ -111,7 +98,6 @@ public class Main {
                 if (line.isEmpty()) {
                     break;
                 }
-
                 String[] parts = line.split("\\s+");
                 if (parts.length == 2) {
                     String key = parts[0];
