@@ -42,27 +42,27 @@ public class Road {
         }
     }
 
-    public void acquireMutex() throws InterruptedException {
-        mutex.acquire();
-    }
+//    public void acquireMutex() throws InterruptedException {
+//        mutex.acquire();
+//    }
 
-    public void releaseMutex() {
-        mutex.release();
-    }
+//    public void releaseMutex() {
+//        mutex.release();
+//    }
 
     //method to add vehicle (produce)
     public void addVehicle(Vehicle car) throws InterruptedException {
-//        mutex.acquire();
+        mutex.acquire();
         if (frontPointer == -1) {
             frontPointer = 0;
         }
         rearPointer = (rearPointer + 1) % roadSize;
         cars[rearPointer] = car;
         count++;
-//        mutex.release();
+        mutex.release();
     }
     public Vehicle removeVehicle() throws InterruptedException{
-//        mutex.acquire();
+        mutex.acquire();
         Vehicle removedCar;
         if (frontPointer != -1) {
             removedCar = cars[frontPointer];
@@ -77,10 +77,9 @@ public class Road {
         else {
             removedCar = null;
         }
-//        mutex.release();
+        mutex.release();
         return removedCar;
     }
-
     public String carDestination() {
         return cars[frontPointer].getDestination();
     }

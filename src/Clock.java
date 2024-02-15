@@ -1,10 +1,9 @@
-public class Clock {
+public class Clock extends Thread{
     private long currentTime;
     private int tickDuration = 1000;
     public Clock() {
         this.currentTime = 0;
     }
-
     public void tick() {
         currentTime++;
         try {
@@ -15,6 +14,12 @@ public class Clock {
     }
     public long getCurrentTime() {
         return currentTime;
+    }
+    @Override
+    public void run() {
+        for (int i = 0; i <= 360; i++) {
+            tick();
+        }
     }
 }
 /*

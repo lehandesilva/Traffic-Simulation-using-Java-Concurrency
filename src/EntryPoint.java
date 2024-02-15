@@ -1,5 +1,5 @@
 import java.util.Random;
-public class EntryPoint implements Runnable{
+public class EntryPoint extends Thread{
     private final String[] destinations = {"University","Station","Shopping Centre","Industrial Park"};
     private Random random = new Random();
     private final int carsPerHour;
@@ -23,7 +23,7 @@ public class EntryPoint implements Runnable{
 //                        System.out.println("car generated with dest:"+ carHolder.getDestination());
                         carsGenerated++;
                         road.releaseMutex();
-                        Thread.sleep(100);
+                        Thread.sleep(500);
                     }
                 }
             }

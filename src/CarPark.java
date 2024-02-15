@@ -1,6 +1,6 @@
 import java.util.concurrent.Semaphore;
 
-public class CarPark implements Runnable{
+public class CarPark extends Thread{
     private final Clock clock;
     private final Vehicle[] carPark; //Array that holds the vehicles once parked
     private int count;
@@ -13,7 +13,6 @@ public class CarPark implements Runnable{
         this.connectedRoad = connectedRoad;
         this.parkMutex = new Semaphore(1);
     }
-
     public void run() {
         try {
             while (clock.getCurrentTime() < 360){
@@ -21,7 +20,6 @@ public class CarPark implements Runnable{
                     try {
                         connectedRoad.acquireMutex();
                         Vehicle car = connectedRoad.removeVehicle();
-                        System.out.println("car removed from :" + connectedRoad.getDestination());
                         long time = clock.getCurrentTime();
                         car.setParkTime(time);
                         parkMutex.acquire();
@@ -44,8 +42,6 @@ public class CarPark implements Runnable{
         return count;
     }
 }
-
-
 /*
 * Should run as a thread
 * Destination for cars (consumer) and it calls the remove vehicle method

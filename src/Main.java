@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
         String filePath = "./Scenario1.txt";
@@ -17,8 +16,6 @@ public class Main {
         Map<String, Integer> junctions = readConfigFile(filePath, "JUNCTIONS");
 
         System.out.println(filePath);
-
-        Clock clock = new Clock();
         //The naming conventions for each road is its entry point followed by its destination
         Road southA = new Road(60,"south", "A", new String[]{SHOPPINGCENTRE,INDUSTRIALPARK,STATION,UNIVERSITY});
         Road eastB = new Road(30, "East", "B", new String[]{SHOPPINGCENTRE,INDUSTRIALPARK,STATION,UNIVERSITY});
@@ -33,6 +30,8 @@ public class Main {
         Road DUniversity = new Road(15,"D",UNIVERSITY, new String[]{UNIVERSITY});
         Road DStation = new Road(15,"D", STATION, new String[]{STATION});
 
+        Clock clock = new Clock();
+
         EntryPoint south = new EntryPoint(entryPoints.get("south"),clock,southA);
         EntryPoint east = new EntryPoint(entryPoints.get("East"),clock,eastB);
         EntryPoint north = new EntryPoint(entryPoints.get("North"),clock,northC);
@@ -42,12 +41,13 @@ public class Main {
         CarPark station = new CarPark(clock, 150,DStation);
         CarPark university = new CarPark(clock,100,DUniversity);
 
+
         Junction Ajunc = new Junction(junctions.get("A"), new Road[]{southA, BA},new Road[]{AB,AIndustrialPark},clock);
         Junction Bjunc = new Junction(junctions.get("B"), new Road[]{AB,CB,eastB},new Road[]{BA,BC},clock);
         Junction Cjunc = new Junction(junctions.get("C"), new Road[]{BC,northC},new Road[]{CShoppingCentre,CD,CB},clock);
         Junction Djunc = new Junction(junctions.get("D"), new Road[]{CD},new Road[]{DStation,DUniversity},clock);
 
-
+        Thread clockThread = new Thread(clock);
 
         Thread southThread = new Thread(south);
         Thread eastThread = new Thread(east);
@@ -61,6 +61,8 @@ public class Main {
         Thread juncCThread = new Thread(Cjunc);
         Thread juncDThread = new Thread(Djunc);
 
+        clockThread.start();
+
         southThread.start();
         eastThread.start();
         northThread.start();
@@ -72,28 +74,16 @@ public class Main {
         juncBThread.start();
         juncCThread.start();
         juncDThread.start();
-
-        for (int i = 0; i <= 360; i++) {
-            clock.tick();
-            time = clock.getCurrentTime();
-            if (time % 60 == 0){
-                System.out.println("Time: " + time/6 + "m :    University : " + university.getCount() + "\nStation: " + station.getCount() +"\nShopping Center: " + shoppingCentre.getCount() + "\nIndustrial Park: " + industrialPark.getCount());
-            }
-        }
-
     }
-
     private static Map<String, Integer> readConfigFile( String filePath, String section) throws FileNotFoundException {
         Map<String, Integer> values = new HashMap<>();
 
         try (Scanner scanner = new Scanner(new File(filePath))) {
             // Skip lines until the specified section is found
             while (scanner.hasNextLine() && !scanner.nextLine().trim().equalsIgnoreCase(section));
-
             // Parse lines inside the section
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine().trim();
-
                 // Stop reading the section when an empty line is encountered
                 if (line.isEmpty()) {
                     break;
@@ -106,8 +96,6 @@ public class Main {
                 }
             }
         }
-
         return values;
     }
-
 }

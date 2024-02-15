@@ -2,7 +2,7 @@ import javax.print.attribute.standard.Destination;
 import java.util.Objects;
 import java.util.concurrent.Semaphore;
 
-public class Junction implements Runnable{
+public class Junction extends Thread{
     private final int greenTime;
     private final Road[] entryRoads;
     private final Road[] exitRoads;
@@ -43,34 +43,25 @@ public class Junction implements Runnable{
                     currentRoad = 0;
                 }
                 if (!entryRoads[currentRoad].isEmpty()) {
-                    String vehicleDestination = entryRoads[currentRoad].carDestination();
-                    Road exitRoad = findExitRoad(vehicleDestination);
+                    Road exitRoad = findExitRoad(entryRoads[currentRoad].carDestination());
                     if (exitRoad != null && !exitRoad.isFull()) {
-                        try {
-                            entryRoads[currentRoad].acquireMutex();
-                            exitRoad.acquireMutex();
-                            Vehicle vehicle = entryRoads[currentRoad].removeVehicle();
-                            exitRoad.addVehicle(vehicle);
-                            System.out.println("car crossed junction at : " + exitRoad.getEntryPoint());
-                            Thread.sleep(100);
-                        } finally {
-                            exitRoad.releaseMutex();
-                            entryRoads[currentRoad].releaseMutex();
-                        }
+                        exitRoad.addVehicle(entryRoads[currentRoad].removeVehicle());
+                        System.out.println("car crossed junction at : " + exitRoad.getEntryPoint());
+                        Thread.sleep(500);
+                    }
+                    long currentTime = clock.getCurrentTime() - startTime;
+                    if (currentTime >= greenTime) {
+                        currentRoad++;
+                        startTime = clock.getCurrentTime();
+                        System.out.println("Changed light");
                     }
                 }
-                long currentTime = clock.getCurrentTime() - startTime;
-                if (currentTime >= greenTime) {
-                    currentRoad++;
-                    startTime = clock.getCurrentTime();
-                    System.out.println("Changed light");
-                }
             }
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
+
     public Road findExitRoad(String vehicleDestination) {
         for (int i = 0; i < exitRoads.length; i++) {
             String exitRoadDestination = exitRoads[i].getDestination();
