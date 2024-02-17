@@ -5,37 +5,33 @@ public class CarPark extends Thread{
     private final Vehicle[] carPark; //Array that holds the vehicles once parked
     private int count;
     private final Road connectedRoad;
-    private final Semaphore parkMutex;
+    private long totalTime;
+    private final int capacity;
     public CarPark(Clock clock, int capacity, Road connectedRoad) {
         this.clock = clock;
         this.carPark = new Vehicle[capacity];
+        this.capacity = capacity;
         this.count = 0;
         this.connectedRoad = connectedRoad;
-        this.parkMutex = new Semaphore(1);
     }
+    @Override
     public void run() {
         try {
-            while (clock.getCurrentTime() < 360){
-                while (!connectedRoad.isEmpty()) {
-                    try {
-                        connectedRoad.acquireMutex();
-                        Vehicle car = connectedRoad.removeVehicle();
-                        long time = clock.getCurrentTime();
-                        car.setParkTime(time);
-                        parkMutex.acquire();
-                        carPark[count] = car;
-                        count++;
-                        System.out.println("car Parked at " + connectedRoad.getDestination());
-                        Thread.sleep(1200);
-                    } finally {
-                        connectedRoad.releaseMutex();
-                        parkMutex.release();
-                    }
+            while (!clock.hasStopped()){
+                if (connectedRoad.hasVehicle() && count < capacity) {
+                    Vehicle car = connectedRoad.removeVehicle();
+                    long time = clock.getCurrentTime();
+                    car.setParkTime(time);
+                    long travelTime = time - car.getEntryTime();
+                    totalTime = totalTime + travelTime;
+                    carPark[count] = car;
+                    count++;
+                    sleep(1200);
                 }
             }
-            System.out.println("Count: " + count);
+            System.out.println(connectedRoad.getDestination() + ": " + count + " cars parked, average journey time " + totalTime/count + "m" );
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            System.out.println("CarPark" + connectedRoad.getEntryPoint()+ "Interrupted");
         }
     }
     public int getCount() {

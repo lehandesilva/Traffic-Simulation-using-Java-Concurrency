@@ -2,97 +2,82 @@ import java.util.concurrent.Semaphore;
 
 public class Road {
     private Semaphore mutex;
-    private Semaphore spaces;
-    private Semaphore items;
+    private int nextIn;
+    private int nextOut;
     private final int roadSize;
     private final String entryPoint;
     private final String destination;
     private final Vehicle[] cars;
     private final String[] couldBeReachedArray;
-    private int frontPointer;
-    private int rearPointer;
+    private boolean hasVehicles;
     private int count;
-
     public Road(int roadSize, String entry,String destination, String[] couldBeReachedArray) {
         this.mutex = new Semaphore(1);
-        this.spaces = new Semaphore(roadSize);
-        this.items = new Semaphore(0);
         this.roadSize = roadSize;
         this.cars = new Vehicle[roadSize];
         this.entryPoint = entry;
         this.destination = destination;
-        this.frontPointer = -1;
-        this.rearPointer = -1;
         this.couldBeReachedArray = couldBeReachedArray;
         this.count = 0;
+        this.nextOut = 0;
+        this.nextIn = 0;
+        this.hasVehicles = false;
+
     }
     //method to check if space avail
-    public boolean isFull() {
-        if (frontPointer ==0 && rearPointer == roadSize -1){
-            return true;
-        } else if (frontPointer == rearPointer + 1) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    public boolean isEmpty() {
-        if (frontPointer == -1) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    synchronized public boolean isFull() {
+        return count >= cars.length;
     }
 
-//    public void acquireMutex() throws InterruptedException {
-//        mutex.acquire();
-//    }
-
-//    public void releaseMutex() {
-//        mutex.release();
-//    }
-
+    synchronized public boolean hasVehicle() {
+        return hasVehicles;
+    }
     public void addVehicle(Vehicle car) {
         try {
-            spaces.acquire();
             mutex.acquire();
+            cars[nextIn] = car;
+            nextIn = (nextIn + 1) % cars.length;
+            count++;
+            hasVehicles = true;
         } catch (InterruptedException e) {
         }
+        finally {
+            mutex.release();
+        }
     }
-    //method to add vehicle (produce)
-//    public void addVehicle(Vehicle car) throws InterruptedException {
-//        mutex.acquire();
-//        if (frontPointer == -1) {
-//            frontPointer = 0;
-//        }
-//        rearPointer = (rearPointer + 1) % roadSize;
-//        cars[rearPointer] = car;
-//        count++;
-//        mutex.release();
-//    }
-//    public Vehicle removeVehicle() throws InterruptedException{
-//        mutex.acquire();
-//        Vehicle removedCar;
-//        if (frontPointer != -1) {
-//            removedCar = cars[frontPointer];
-//            count--;
-//            if (frontPointer == rearPointer) {
-//                frontPointer = -1;
-//                rearPointer = -1;
-//            } else {
-//                frontPointer = (frontPointer + 1) % roadSize;
-//            }
-//        }
-//        else {
-//            removedCar = null;
-//        }
-//        mutex.release();
-//        return removedCar;
-//    }
+    public Vehicle removeVehicle() {
+        Vehicle car = null;
+        try {
+            mutex.acquire();
+            car = cars[nextOut];
+            nextOut = (nextOut + 1) % cars.length;
+            count--;
+            hasVehicles = count > 0;
+        } catch (InterruptedException e) {
+        }
+        finally {
+            mutex.release();
+        }
+        if (car == null){
+            throw new RuntimeException("Removing null car");
+        }
+        return car;
+    }
     public String carDestination() {
-        return cars[frontPointer].getDestination();
+        if (cars[nextOut] != null){
+            return cars[nextOut].getDestination();
+        }
+        else {
+            return null;
+        }
+    }
+
+    public int getRoadSize() {
+        return roadSize;
+    }
+
+    public int getCount() {
+        return count;
     }
 
     public String getDestination() {
@@ -106,8 +91,6 @@ public class Road {
     public String[] getCouldBeReachedArray() {
         return couldBeReachedArray;
     }
-
-
 }
 
 /*

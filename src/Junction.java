@@ -1,4 +1,7 @@
 import javax.print.attribute.standard.Destination;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Objects;
 import java.util.concurrent.Semaphore;
 
@@ -9,6 +12,8 @@ public class Junction extends Thread{
     private final Clock clock;
     private int currentRoad;
     private long startTime;
+    private int carsPassed;
+    private PrintWriter logWriter;
     public Junction(int greenTime, Road[] entryRoads, Road[] exitRoads, Clock clock) {
         this.greenTime = (greenTime / 10);
         this.entryRoads = entryRoads;
@@ -16,50 +21,51 @@ public class Junction extends Thread{
         this.clock = clock;
         currentRoad = 0;
         startTime = clock.getCurrentTime();
+        this.carsPassed = 0;
+
+        try {
+            logWriter = new PrintWriter(new FileWriter("junction_log.txt", true));
+        } catch (IOException e){
+            throw new RuntimeException("Failed to initialize log file", e);
+        }
     }
-    /*
-    * Loop for 360 seconds
-    * get the entry road that's attached and check cars destination, get destination to it,
-    * loop until there's a spot
-    * grab mutex of both entry and exit, add and remove then release both */
 
-    /*First approach -
-     * Gets destination of current entry road
-     * Attempt to grab mutex of both roads
-     * Loop until there's a spot
-     * Once there's a spot remove and add the car */
-
-    /*Second Approach
-     * Grab mutex of entry road
-     * remove car
-     * Figure out the exit road
-     * hold the car in a loop until there's space in the exit road
-     * Once there's a spot grab mutex and add car to the road
-     * Release mutex */
+    @Override
     public void run() {
         try {
-            while (clock.getCurrentTime() < 360) {
-                if (currentRoad >= entryRoads.length) {
+            while (!clock.hasStopped()) {
+                if (currentRoad > (entryRoads.length - 1) ) {
                     currentRoad = 0;
                 }
-                if (!entryRoads[currentRoad].isEmpty()) {
+                if (entryRoads[currentRoad].hasVehicle()) {
                     Road exitRoad = findExitRoad(entryRoads[currentRoad].carDestination());
-                    if (exitRoad != null && !exitRoad.isFull()) {
+                    if (entryRoads[currentRoad].hasVehicle() && !exitRoad.isFull()) {
                         exitRoad.addVehicle(entryRoads[currentRoad].removeVehicle());
-                        System.out.println("car crossed junction at : " + exitRoad.getEntryPoint());
-                        Thread.sleep(500);
+                        carsPassed++;
+                        sleep(500);
                     }
-                    long currentTime = clock.getCurrentTime() - startTime;
-                    if (currentTime >= greenTime) {
-                        currentRoad++;
-                        startTime = clock.getCurrentTime();
-                        System.out.println("Changed light");
+                }
+                long currentTime = clock.getCurrentTime();
+                if ((currentTime - startTime) >= greenTime) {
+                    if (carsPassed == 0) {
+                        log(carsPassed + " cars through from " + entryRoads[currentRoad].getEntryPoint()+ ", " + entryRoads[currentRoad].getCount()+ " cars waiting. GRIDLOCK");
                     }
+                    else {
+                        carsPassed = 0;
+                        log(carsPassed + " cars through from " + entryRoads[currentRoad].getEntryPoint()+ ", " + entryRoads[currentRoad].getCount()+ " cars waiting.");
+                    }
+                    currentRoad++;
+                    startTime = clock.getCurrentTime();
                 }
             }
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            System.out.println("Junction" + entryRoads[currentRoad].getEntryPoint()+ "Interrupted");
         }
+    }
+
+    private void log(String message) {
+        logWriter.println("Time: " + clock.getCurrentTime() + "m - " + entryRoads[0].getDestination() + ": " + message);
+        logWriter.flush();
     }
 
     public Road findExitRoad(String vehicleDestination) {

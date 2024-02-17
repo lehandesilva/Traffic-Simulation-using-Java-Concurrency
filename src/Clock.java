@@ -1,8 +1,10 @@
-public class Clock extends Thread{
+public class Clock{
     private long currentTime;
     private int tickDuration = 1000;
+    private boolean hasStopped;
     public Clock() {
         this.currentTime = 0;
+        this.hasStopped = false;
     }
     public void tick() {
         currentTime++;
@@ -15,11 +17,11 @@ public class Clock extends Thread{
     public long getCurrentTime() {
         return currentTime;
     }
-    @Override
-    public void run() {
-        for (int i = 0; i <= 360; i++) {
-            tick();
-        }
+    public boolean hasStopped() {
+        return hasStopped;
+    }
+    public void setHasStopped(boolean hasStopped) {
+        this.hasStopped = hasStopped;
     }
 }
 /*

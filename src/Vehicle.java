@@ -19,4 +19,5 @@ public class Vehicle {
     public void setParkTime(long parkTime){
         this.parkTime = parkTime;
     }
+    public long getParkTime() {return parkTime;}
 }

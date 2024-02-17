@@ -6,30 +6,30 @@ public class EntryPoint extends Thread{
     private int carsGenerated;
     private final Clock clock;
     private final Road road;
-
     public EntryPoint(int carsPerHour, Clock clock, Road road){
         this.carsPerHour = carsPerHour;
         this.clock = clock;
         this.road = road;
     }
+    @Override
     public void run(){
         try {
-            while(clock.getCurrentTime() <= 360) {
-                while (carsGenerated <= carsPerHour) {
+            while(!clock.hasStopped()) {
+                if (carsGenerated <= carsPerHour){
                     if (!road.isFull()) {
-                        road.acquireMutex();
-                        Vehicle carHolder = generateVehicle();
-                        road.addVehicle(carHolder);
-//                        System.out.println("car generated with dest:"+ carHolder.getDestination());
+                        road.addVehicle(generateVehicle());
                         carsGenerated++;
-                        road.releaseMutex();
-                        Thread.sleep(500);
+//                        System.out.println("Car generated at" + road.getEntryPoint());
+                        sleep(500);
                     }
                 }
             }
-        }catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        } catch (InterruptedException e) {
+            System.out.println("EntryPoint" + road.getEntryPoint()+ "Interrupted");
         }
+    }
+    public int getCarsGenerated() {
+        return carsGenerated;
     }
     private String getRandomDestination() {
         double rand = random.nextDouble();
@@ -38,14 +38,12 @@ public class EntryPoint extends Thread{
         else if (rand < 0.6) return destinations[2];
         else return destinations[3];
     }
-
     private Vehicle generateVehicle() {
         String destination = getRandomDestination();
         long enterTime = clock.getCurrentTime();
         return new Vehicle(destination, enterTime);
     }
 }
-
 /*
 * Check if the road that's connected to it is empty and if it
   is then add a vehicle*/
