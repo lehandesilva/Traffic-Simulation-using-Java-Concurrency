@@ -7,17 +7,21 @@ import java.util.Map;
 import java.util.Scanner;
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
-        String filePath = "./Scenario2.txt";
+        String filePath = "./Scenario4.txt";
+
+        // Enums
         String SHOPPINGCENTRE = "Shopping Centre";
         String INDUSTRIALPARK = "Industrial Park";
         String STATION = "Station";
         String UNIVERSITY = "University";
+
         long time;
 
         Map<String, Integer> entryPoints = readConfigFile( filePath,"ENTRYPOINTS");
         Map<String, Integer> junctions = readConfigFile(filePath, "JUNCTIONS");
 
         System.out.println(filePath);
+        // Configuration for all classes
         //The naming conventions for each road is its entry point followed by its destination
         Road southA = new Road(60,"south", "A", new String[]{});
         Road eastB = new Road(30, "East", "B", new String[]{});
@@ -56,6 +60,7 @@ public class Main {
         Junction Djunc = new Junction(junctions.get("D"), new Road[]{CD},new Road[]{DStation,DUniversity},clock);
         Djunc.setName("Djunc");
 
+        // Starting thread
         south.start();
         east.start();
         north.start();
@@ -68,13 +73,17 @@ public class Main {
         station.start();
         university.start();
 
+        // Loops 360 times and calls the tick() method which sleeps for 1 second so it
+        // will run for 360 seconds ==> 6 minutes
         for (int i = 0; i <= 360; i++) {
             clock.tick();
             time = clock.getCurrentTime();
+            // Every minute, outputs the count of each car park
             if (time % 60 == 0){
-                System.out.println("Time: " + time/6 + "m :    University : " + university.getCount() + "\nStation: " + station.getCount() +"\nShopping Center: " + shoppingCentre.getCount() + "\nIndustrial Park: " + industrialPark.getCount());
+                System.out.println("Time: " + time/6 + "m :    University : " + university.getCount() + "\nStation: " + station.getCount() +"\nShopping Centre: " + shoppingCentre.getCount() + "\nIndustrial Park: " + industrialPark.getCount());
             }
         }
+        // Setting clock stopped to true so all threads can stop looping
         clock.setHasStopped(true);
         finalReport( south,  north,  east,  southA, eastB, northC, AB, AIndustrialPark, BA, BC, CB, CShoppingCentre, CD, DUniversity, DStation,university,  industrialPark, shoppingCentre, station);
 

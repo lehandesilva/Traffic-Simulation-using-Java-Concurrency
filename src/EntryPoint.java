@@ -2,8 +2,8 @@ import java.util.Random;
 public class EntryPoint extends Thread{
     private final String[] destinations = {"University","Station","Shopping Centre","Industrial Park"};
     private Random random = new Random();
-    private final int carsPerHour;
-    private int carsGenerated;
+    private final int carsPerHour; // limit on cars that could be generated per hour
+    private int carsGenerated; // cars thats generated
     private final Clock clock;
     private final Road road;
     public EntryPoint(int carsPerHour, Clock clock, Road road){
@@ -14,12 +14,13 @@ public class EntryPoint extends Thread{
     @Override
     public void run(){
         try {
+            // Loops until clock.hasStopped is true
             while(!clock.hasStopped()) {
                 if (carsGenerated <= carsPerHour){
+                    // checks if road is full before adding car
                     if (!road.isFull()) {
                         road.addVehicle(generateVehicle());
                         carsGenerated++;
-//                        System.out.println("Car generated at" + road.getEntryPoint());
                         sleep(500);
                     }
                 }
@@ -31,6 +32,8 @@ public class EntryPoint extends Thread{
     public int getCarsGenerated() {
         return carsGenerated;
     }
+
+    // Returns a random destination based on probability
     private String getRandomDestination() {
         double rand = random.nextDouble();
         if (rand < 0.1) return destinations[0];
@@ -38,6 +41,7 @@ public class EntryPoint extends Thread{
         else if (rand < 0.6) return destinations[2];
         else return destinations[3];
     }
+    // Generate vehicle
     private Vehicle generateVehicle() {
         String destination = getRandomDestination();
         long enterTime = clock.getCurrentTime();

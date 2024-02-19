@@ -1,14 +1,16 @@
 public class Clock{
     private long currentTime;
-    private int tickDuration = 1000;
-    private boolean hasStopped;
+    private int tickDuration = 1000; // Since 1000 milliseconds = 1 second
+    private boolean hasStopped; // Flag for threads to check if the clock has stopped, initialized as false
     public Clock() {
         this.currentTime = 0;
         this.hasStopped = false;
     }
     public void tick() {
+        // increments at each iteration
         currentTime++;
         try {
+            // To simulate 1 second pass by
             Thread.sleep(tickDuration);
         } catch (InterruptedException e){
             Thread.currentThread().interrupt();

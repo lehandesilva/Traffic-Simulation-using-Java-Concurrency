@@ -1,5 +1,5 @@
 public class Vehicle {
-    private String destination;
+    private final String destination;
     private long entryTime;
     private long parkTime;
 
@@ -10,14 +10,12 @@ public class Vehicle {
 
     public String getDestination() {
         return destination;
-    }
-
+    } // gets destination
     public long getEntryTime() {
         return entryTime;
-    }
-
+    } // gets entry time
     public void setParkTime(long parkTime){
         this.parkTime = parkTime;
-    }
-    public long getParkTime() {return parkTime;}
+    } // sets park time
+    public long getParkTime() {return parkTime;} // gets park time
 }
